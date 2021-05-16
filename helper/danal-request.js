@@ -1,3 +1,11 @@
+
+/*
+    @author kisookang
+    @date 2021-05-16
+    @email verynicesoo78@gmail.com
+    @note http client async / sync request 
+*/
+
 var request = require('request');
 const cipher = require("../helper/danal-cipher")
 const  HashMap  = require ( 'hashmap'); 
