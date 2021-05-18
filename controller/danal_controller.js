@@ -254,7 +254,7 @@ function post_req_readyData(req){
         /**************************************************
          * 고객 정보
          **************************************************/
-        REQ_DATA.set("USERNAME", data.username);  // 구매자 이름
+        REQ_DATA.set("USERNAME", data.username);   // 구매자 이름
         REQ_DATA.set("USERID", data.userid);       // 사용자 ID
         REQ_DATA.set("USEREMAIL", data.useremail); // 소보법 email수신처
         /**************************************************
