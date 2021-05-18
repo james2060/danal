@@ -1,0 +1,1 @@
+{"status":1,"starturl":"https://checkout.teledit.com/creditcard_std/web","startparams":"aEhdpD3+ITj5w1zNgtrQTZq5h2SXYFtA2UKsC0WV7LsK8QeAjLyd8hk3wGC1UcuZdlmL24CCBQv1X46AvS2cGrMmt1DPuoWQgzeinmj0CppANk2zljAwtEwQwCG6vYwayBsmbsz2jsfsdEv8jgAsgQ+5dAg4qACI/sP9/qrZKde2mtl33E8yuGMspk6CxErF/DSK4OulZFhuTdx9ZtAU0p4VQvCR1CKrItCcGCBniBO9rJ4le/J7Ic3WAhnMPw0R"}

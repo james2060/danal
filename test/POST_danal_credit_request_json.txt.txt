@@ -1,0 +1,25 @@
+
+POST 
+
+http://localhost:3000/danal/api/doready
+
+
+/// body data, type JSON
+
+{
+    "ready":{
+        "returnurl":"http://your.domain/CPCGI.jsp",
+        "cancelurl":"http://your.domain/Cancel.jsp",
+        "amount":"301",
+        "currency":"410",
+        "itemname":"testitem",
+        "useragent":"WP",
+        "orderid":"danal_20210514144543661537",
+        "offerperiod":"2015102920151129",
+        "username":"kisookang",
+        "useremail":"verynicesoo78@gmail.com",
+        "userid":"verynicesoo78",
+        "subcpid":"301"
+
+    }
+}

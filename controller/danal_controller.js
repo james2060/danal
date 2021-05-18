@@ -223,17 +223,119 @@ async function CallCredit(res, isDebug) {
       console.error(error);
     }
   } 
+/* STEP 1* */
+function post_req_readyData(req){
+    try{
+
+        data = req.body.ready;
+        console.log(data);
+        /******************************************************
+         *  RETURNURL 	: CPCGI페이지의 Full URL
+         *  CANCELURL 	: BackURL페이지의 Full URL
+         ******************************************************/
+        const RETURNURL = data.returnurl;
+        const CANCELURL = data.cancelurl;
+
+        const TEST_AMOUNT = "301";
+        var  REQ_DATA  = new HashMap ( ) ; 
+        /**************************************************
+         * SubCP 정보
+         **************************************************/
+        REQ_DATA.set("SUBCPID", data.subcpid);
+        /**************************************************
+         * 결제 정보
+         **************************************************/
+        REQ_DATA.set("AMOUNT", data.amount);
+        REQ_DATA.set("CURRENCY", data.currency);
+        REQ_DATA.set("ITEMNAME", data.itemname);
+        REQ_DATA.set("USERAGENT", data.useragent);
+        REQ_DATA.set("ORDERID", data.orderid);
+        REQ_DATA.set("OFFERPERIOD", data.offerperiod);
+        /**************************************************
+         * 고객 정보
+         **************************************************/
+        REQ_DATA.set("USERNAME", data.username);  // 구매자 이름
+        REQ_DATA.set("USERID", data.userid);       // 사용자 ID
+        REQ_DATA.set("USEREMAIL", data.useremail); // 소보법 email수신처
+        /**************************************************
+         * URL 정보
+         **************************************************/
+        REQ_DATA.set("CANCELURL", CANCELURL);
+        REQ_DATA.set("RETURNURL", RETURNURL);
+        /**************************************************
+         * 기본 정보
+         **************************************************/
+        REQ_DATA.set("TXTYPE", "AUTH");
+        REQ_DATA.set("SERVICETYPE", "DANALCARD");
+        REQ_DATA.set("ISNOTI", "N");
+        REQ_DATA.set("BYPASSVALUE", "this=is;a=test;bypass=value"); 
+        // BILL응답 또는 Noti에서 돌려받을 값. '&'를 사용할 경우 값이 잘리게되므로 유의.
+
+        var cpdata = data2string(REQ_DATA);
+        var cipherText = urlencode.encode(cipher.encrypt(cpdata));
+
+        return cipherText;
+
+    } catch (error) {
+    console.error(error);
+    return "error";
+  }
+}
+  /**************************************************
+ * danal 응답데이터를 파싱하여  key-value 배열로 리턴한다.
+ **************************************************/
+async function postCallCredit(req, res, isDebug) {
+  
+    try {       
+        //step 1       
+        var req_enc_data = post_req_readyData(req);
+        
+        //step 2
+        var result = doReady(req_enc_data);
+
+        if(result["RETURNCODE"] == '0000')
+        {
+            console.log(result["RETURNMSG"]);
+            console.log(result["STARTURL"]);
+            console.log(result["TID"]);
+            console.log(result["ORDERID"]);
+            console.log(result["STARTPARAMS"])
+        
+            if(!isDebug)
+                return apiResponse.successResponseWithReadyParams(res,result["STARTURL"],result["STARTPARAMS"]);
+        }
+        else{
+            console.log(result["RETURNCODE"]);
+            console.log(result["RETURNMSG"]);
+
+            if(!isDebug)
+                return apiResponse.validationErrorWithData(res,"RETURNMSG",result["RETURNMSG"]);
+        }
+   
+        //step 3
+        //var result = doReadyRedirect(result);
+
+        return result;
+
+    } catch (error) {
+      console.error(error);
+    }
+  } 
 /**************************************************
  * Controller EXPORTS FUNC 
  **************************************************/
 function DanalReady(req, res, next){
     
-    var data = CallCredit(res,0);    
+    CallCredit(res,0);    
+}
+function DoDanalReady(req, res, next){
+    postCallCredit(req,res,0);
 }
 module.exports = {
     DanalReady: DanalReady,
+    DoDanalReady:DoDanalReady,
 }
 
 //디버깅 시에 주석 해제
-var data = CallCredit(0,1);
-console.log(data);
+//var data = CallCredit(0,1);
+//console.log(data);
