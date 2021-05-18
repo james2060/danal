@@ -228,7 +228,7 @@ function post_req_readyData(req){
     try{
 
         data = req.body.ready;
-        console.log(data);
+        //console.log(data);
         /******************************************************
          *  RETURNURL 	: CPCGI페이지의 Full URL
          *  CANCELURL 	: BackURL페이지의 Full URL
