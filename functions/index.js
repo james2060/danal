@@ -77,9 +77,13 @@ app.get('/getMessage', (req, res) => {
  app.post('/dodanal', (req, res) => { 
         CallCredit(res,0);
  }); 
+ app.post('/dodanalready',(req, res) => {
+    postCallCredit(req,res,0);
+ });
 const server = app.listen(process.env.PORT || '3000', () => { 
     console.log('server listening on port %s', server.address().port); 
 }); 
+
 // /api prefix를 가지는 요청을 express 라우터로 전달 
 exports.api = functions.https.onRequest(app);
 
@@ -267,7 +271,104 @@ function doReady(readyData){
       console.error(error);
     }
   } 
+/* STEP 1* */
+function post_req_readyData(req){
+    try{
 
+        data = req.body.ready;
+        //console.log(data);
+        /******************************************************
+         *  RETURNURL 	: CPCGI페이지의 Full URL
+         *  CANCELURL 	: BackURL페이지의 Full URL
+         ******************************************************/
+        const RETURNURL = data.returnurl;
+        const CANCELURL = data.cancelurl;
+
+        const TEST_AMOUNT = "301";
+        var  REQ_DATA  = new HashMap ( ) ; 
+        /**************************************************
+         * SubCP 정보
+         **************************************************/
+        REQ_DATA.set("SUBCPID", data.subcpid);
+        /**************************************************
+         * 결제 정보
+         **************************************************/
+        REQ_DATA.set("AMOUNT", data.amount);
+        REQ_DATA.set("CURRENCY", data.currency);
+        REQ_DATA.set("ITEMNAME", data.itemname);
+        REQ_DATA.set("USERAGENT", data.useragent);
+        REQ_DATA.set("ORDERID", data.orderid);
+        REQ_DATA.set("OFFERPERIOD", data.offerperiod);
+        /**************************************************
+         * 고객 정보
+         **************************************************/
+        REQ_DATA.set("USERNAME", data.username);   // 구매자 이름
+        REQ_DATA.set("USERID", data.userid);       // 사용자 ID
+        REQ_DATA.set("USEREMAIL", data.useremail); // 소보법 email수신처
+        /**************************************************
+         * URL 정보
+         **************************************************/
+        REQ_DATA.set("CANCELURL", CANCELURL);
+        REQ_DATA.set("RETURNURL", RETURNURL);
+        /**************************************************
+         * 기본 정보
+         **************************************************/
+        REQ_DATA.set("TXTYPE", "AUTH");
+        REQ_DATA.set("SERVICETYPE", "DANALCARD");
+        REQ_DATA.set("ISNOTI", "N");
+        REQ_DATA.set("BYPASSVALUE", "this=is;a=test;bypass=value"); 
+        // BILL응답 또는 Noti에서 돌려받을 값. '&'를 사용할 경우 값이 잘리게되므로 유의.
+
+        var cpdata = data2string(REQ_DATA);
+        var cipherText = urlencode.encode(encrypt(cpdata));
+
+        return cipherText;
+
+    } catch (error) {
+    console.error(error);
+    return "error";
+  }
+}
+  /**************************************************
+ * danal 응답데이터를 파싱하여  key-value 배열로 리턴한다.
+ **************************************************/
+async function postCallCredit(req, res, isDebug) {
+  
+    try {       
+        //step 1       
+        var req_enc_data = post_req_readyData(req);
+        
+        //step 2
+        var result = doReady(req_enc_data);
+
+        if(result["RETURNCODE"] == '0000')
+        {
+            console.log(result["RETURNMSG"]);
+            console.log(result["STARTURL"]);
+            console.log(result["TID"]);
+            console.log(result["ORDERID"]);
+            console.log(result["STARTPARAMS"])
+        
+            if(!isDebug)
+                return successResponseWithReadyParams(res,result["STARTURL"],result["STARTPARAMS"]);
+        }
+        else{
+            console.log(result["RETURNCODE"]);
+            console.log(result["RETURNMSG"]);
+
+            if(!isDebug)
+                return validationErrorWithData(res,"RETURNMSG",result["RETURNMSG"]);
+        }
+   
+        //step 3
+        //var result = doReadyRedirect(result);
+
+        return result;
+
+    } catch (error) {
+      console.error(error);
+    }
+  } 
   validationErrorWithData = function (res, msg, data) {
 	var resData = {
 		status: 0,
